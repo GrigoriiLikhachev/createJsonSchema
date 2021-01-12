@@ -1,0 +1,30 @@
+{
+    "data_types": {
+        "listStrings": [
+            "string",
+            "date"
+        ],
+        "listTypesDate": [
+            "date"
+        ],
+        "listIntegers": [
+            "number",
+            "integer"
+        ],
+        "listObjects": [
+            "object"
+        ],
+        "listArrays": [
+            "array"
+        ],
+        "listBooleans": [
+            "boolean"
+        ]
+    },
+    "arguments": {
+        "listReguired": [
+            "o",
+            "î"
+        ]
+    }
+}

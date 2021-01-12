@@ -1,16 +1,18 @@
 import pandas
 import sys
 import json
+import time
 
 
-listStrings = ['string', 'date']
-listTypesDate = ['date']
-listIntegers = ['number', 'integer']
-listObjects = ['object']
-listArrays = ['array']
-listBooleans = ['boolean']
-listReguired = ['o', 'о']
-fileName_, sheetName_ = 'speca.xls', '1'
+with open('config.json', 'r') as read_file:
+    dict__ = json.load(read_file)
+listStrings = dict__['data_types']['listStrings']
+listTypesDate = dict__['data_types']['listTypesDate']
+listIntegers = dict__['data_types']['listIntegers']
+listObjects = dict__['data_types']['listObjects']
+listArrays = dict__['data_types']['listArrays']
+listBooleans = dict__['data_types']['listBooleans']
+listReguired = dict__['arguments']['listReguired']
 
 
 # import from xls and smoke tests import
@@ -79,7 +81,7 @@ def validateWorkDictionray(workDictionaryWork_):
 # Add zero level to schema JSON
 def addZeroLevelToSchema(dictionaryForJson__):
     dictionaryForJson_ = {}
-    dictionaryForJson_['$schema'] = 'version_1'
+    dictionaryForJson_['$schema'] = 'version_' + str(time.time())
     dictionaryForJson_['type'] = 'object'
     dictionaryForJson_['properties'] = {}
     for i in dictionaryForJson__:
@@ -252,10 +254,24 @@ def createWorkDictionary(df_import):
     return workDictionary
 
 
-df_import = importAndValidationXlsFile(fileName_, sheetName_)
-workDictionaryWork = createWorkDictionary(df_import)
-workDictionaryWork, maximumDepth, minimumDepth = validateWorkDictionray(workDictionaryWork)
-dictionaryForJson = createDictionaryForJSON(workDictionaryWork, maximumDepth, minimumDepth)
-fileNameJson = fileName_.replace('.', '_') + '_' + sheetName_ + '.json'
-with open(fileNameJson, 'w') as write_file:
-    json.dump(dictionaryForJson, write_file, ensure_ascii=False, indent=4)
+
+with open('import.json', 'r') as read_file:
+    dict_ = json.load(read_file)
+for _ in dict_['xls']:
+    for __ in dict_['xls'][_]:
+        fileName_, sheetName_ = _, __
+        ___ = 0
+        try:
+            df_import = importAndValidationXlsFile(fileName_, sheetName_)
+            ___ = 1
+        except FileNotFoundError:
+            print('Не найден файл', fileName_)
+        except:
+            print('Не найден лист', __, 'в файле', _)
+        if ___:
+            workDictionaryWork = createWorkDictionary(df_import)
+            workDictionaryWork, maximumDepth, minimumDepth = validateWorkDictionray(workDictionaryWork)
+            dictionaryForJson = createDictionaryForJSON(workDictionaryWork, maximumDepth, minimumDepth)
+            fileNameJson = fileName_.replace('.', '_') + '_' + sheetName_ + '_' + str(time.time()) + '.json'
+            with open(fileNameJson, 'w') as write_file:
+                json.dump(dictionaryForJson, write_file, ensure_ascii=False, indent=4)
