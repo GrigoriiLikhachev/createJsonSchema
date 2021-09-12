@@ -1,7 +1,14 @@
 {
     "xls": {
-        "filenames": [
-            "sheetnames"
+        "speca.xls": [
+            "1"
         ]
+    },
+    "dictionary": {
+        "xls": {
+            "dictionary.xls": [
+                "dictionary"
+            ]
+        }
     }
 }
