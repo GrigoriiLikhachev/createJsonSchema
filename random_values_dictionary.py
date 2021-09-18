@@ -29,7 +29,7 @@ def create_dictionary_of_dictionary(df_import_whithout_nan):
     return dictionary_of_dictionary
 
 
-def create_random_dictionary_of_dictionary(df_import_whithout_nan):
+def temp_create_random_dictionary_of_dictionary(df_import_whithout_nan):
     dictionary_of_dictionary = create_dictionary_of_dictionary(df_import_whithout_nan)
     random_dictionary_of_dictionary = {}
     for _ in dictionary_of_dictionary:
@@ -38,12 +38,11 @@ def create_random_dictionary_of_dictionary(df_import_whithout_nan):
     return random_dictionary_of_dictionary
 
 
-#for testing
-with open('import.json', 'r') as read_file:
-    dict_ = json.load(read_file)
-
-
-for _ in dict_['dictionary']['xls']:
-    for __ in dict_['dictionary']['xls'][_]:
-        df= import_and_validation_dictionary_file(_, __)
-        random_dictionary_of_dictionary = create_random_dictionary_of_dictionary(df)
+def create_random_dictionary_of_dictionary():
+    with open('import.json', 'r') as read_file:
+        dict_ = json.load(read_file)
+    for _ in dict_['dictionary']['xls']:
+        for __ in dict_['dictionary']['xls'][_]:
+            df = import_and_validation_dictionary_file(_, __)
+            random_dictionary_of_dictionary = temp_create_random_dictionary_of_dictionary(df)
+    return random_dictionary_of_dictionary
