@@ -15,17 +15,38 @@ list_booleans = dict__['data_types']['listBooleans']
 list_reguired = dict__['arguments']['listReguired']
 
 
-
-# Add zero level to schema JSON
-def add_zero_level_to_schema(dictionary_for_json__):
+# Create dictionary for JSON minimum or maximum
+def create_dictionary_for_json_minimum_maximum(work_dictionary_work_, k_max, k_min, minimum_json=False):
+    dictionary_for_json = {}
+    for i in range(k_max, k_min - 1, -1):
+        for k in work_dictionary_work_[i]:
+            dictionary_for_json[k] = {}
+            for j in work_dictionary_work_[i][k]:
+                type_parametr = work_dictionary_work_[i][k][j][0]
+                parametr_name = work_dictionary_work_[i][k][j][1]
+                required_parametr = work_dictionary_work_[i][k][j][2]
+                parametr_value = work_dictionary_work_[i][k][j][4]
+                __ = 1
+                if minimum_json:
+                    if required_parametr in list_reguired:
+                        __ = 1
+                    else:
+                        __ = 0
+                if type_parametr not in list_arrays and type_parametr not in list_objects:
+                    if __:
+                        dictionary_for_json[k][parametr_name] = parametr_value
+                else:
+                    _ = dictionary_for_json.pop(j)
+                    if __:
+                        if type_parametr in list_arrays:
+                            dictionary_for_json[k][parametr_name]= _
+                        else:
+                            dictionary_for_json[k][parametr_name] = [_]
     dictionary_for_json_ = {}
-    dictionary_for_json_['$schema'] = 'version_' + str(time.time())
-    dictionary_for_json_['type'] = 'object'
-    dictionary_for_json_['properties'] = {}
-    for i in dictionary_for_json__:
-        dictionary_for_json_['properties'] = dictionary_for_json__[i]['properties']
+    for i in dictionary_for_json:
+        for _ in dictionary_for_json[i]:
+            dictionary_for_json_[_] = dictionary_for_json[i][_]
     return dictionary_for_json_
-
 
 
 # Create dictionary for JSON schema
@@ -33,9 +54,9 @@ def create_dictionary_for_json_schema(work_dictionary_work_, k_max, k_min):
     dictionary_for_json = {}
     for i in range(k_max, k_min - 1, -1):
         for k in work_dictionary_work_[i]:
+            if k not in dictionary_for_json:
+                dictionary_for_json[k] = {'properties': {}, 'required': []}
             for j in work_dictionary_work_[i][k]:
-                if k not in dictionary_for_json:
-                    dictionary_for_json[k] = {'properties': {}, 'required': []}
                 a0 = work_dictionary_work_[i][k][j][0]
                 a1 = work_dictionary_work_[i][k][j][1]
                 a2 = work_dictionary_work_[i][k][j][2]
@@ -106,7 +127,24 @@ def create_dictionary_for_json_boolean():
     dictionary_number['type'] = 'boolean'
 
 
-def create_json(parametr=0):
+# Add zero level to schema JSON
+def add_zero_level_to_schema(dictionary_for_json__):
+    dictionary_for_json_ = {}
+    dictionary_for_json_['$schema'] = 'version_' + str(time.time())
+    dictionary_for_json_['type'] = 'object'
+    dictionary_for_json_['properties'] = {}
+    for i in dictionary_for_json__:
+        dictionary_for_json_['properties'] = dictionary_for_json__[i]['properties']
+    return dictionary_for_json_
+
+
+def create_json(json_schema=True, minimum_json=False, maximum_json=False):
+    parametr = 0
+    if json_schema:
+        if minimum_json or maximum_json:
+            parametr = 1
+    else:
+        parametr = 1
     with open('import.json', 'r') as read_file:
         dict_ = json.load(read_file)
     for _ in dict_['xls']:
@@ -124,12 +162,27 @@ def create_json(parametr=0):
                 work_dictionary_work = cwdfj.create_work_dictionary(df_import, parametr)
                 work_dictionary_work, maximum_depth, minimum_depth = \
                     cwdfj.validate_work_dictionary(work_dictionary_work)
-                if parametr == 0:
+                if json_schema:
                     dictionary_for_json = create_dictionary_for_json_schema(work_dictionary_work,
                                                                             maximum_depth, minimum_depth)
-                    file_name_json = file_name_.replace('.', '_') + '_' + sheet_name_ + '_' + str(time.time()) + '.json'
-                    print(dictionary_for_json)
-                    '''
+                    file_name_json = 'json_schema_' + file_name_.replace('.', '_') + '_' + sheet_name_ + \
+                                     '_' + str(time.time()) + '.json'
                     with open(file_name_json, 'w') as write_file:
                         json.dump(dictionary_for_json, write_file, ensure_ascii=False, indent=4)
-                    '''
+                if minimum_json:
+                    dictionary_for_json = create_dictionary_for_json_minimum_maximum(work_dictionary_work,
+                                                                            maximum_depth, minimum_depth, True)
+                    file_name_json = 'json_minimum_' + file_name_.replace('.', '_') + '_' + sheet_name_ + \
+                                     '_' + str(time.time()) + '.json'
+                    with open(file_name_json, 'w') as write_file:
+                        json.dump(dictionary_for_json, write_file, ensure_ascii=False, indent=4)
+                if maximum_json:
+                    dictionary_for_json = create_dictionary_for_json_minimum_maximum(work_dictionary_work,
+                                                                            maximum_depth, minimum_depth, False)
+                    file_name_json = 'json_maximum_' + file_name_.replace('.', '_') + '_' + sheet_name_ + \
+                                     '_' + str(time.time()) + '.json'
+                    with open(file_name_json, 'w') as write_file:
+                        json.dump(dictionary_for_json, write_file, ensure_ascii=False, indent=4)
+
+
+create_json(True, True, True)
